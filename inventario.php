@@ -15,29 +15,43 @@ if ($db->connect_error) {
 }
 
 // Manejar el envío del formulario para agregar un registro
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    $marca = $_POST['marca'];
    $modelo = $_POST['modelo'];
    $año = $_POST['año'];
    $precio = $_POST['precio'];
-   $estado =  strtolower($_POST['estado']);
-   $disponibilidad =  strtolower($_POST['disponibilidad']);
+   $estado = $_POST['estado'];
+   $disponibilidad = $_POST['disponibilidad'];
 
-   $sql = "INSERT INTO inventario (marca, modelo, año, precio, estado, disponibilidad)
-           VALUES ('$marca', '$modelo', '$año', '$precio', '$estado', '$disponibilidad')";
+   if ($_POST['action'] == 'add') {
+      $sql = "INSERT INTO inventario (marca, modelo, año, precio, estado, disponibilidad)
+               VALUES ('$marca', '$modelo', '$año', '$precio', '$estado', '$disponibilidad')";
+      $successMessage = "Vehículo agregado con éxito!";
+   } elseif ($_POST['action'] == 'delete') {
+      $id = $_POST['vehicleId'];
+      $sql = "DELETE FROM inventario WHERE id = $id";
+      $successMessage = "Vehículo eliminado con éxito!";
+   } else {
+      $id = $_POST['vehicleId'];
+      $sql = "UPDATE inventario 
+               SET marca='$marca', modelo='$modelo', año='$año', 
+                   precio='$precio', estado='$estado', disponibilidad='$disponibilidad'
+               WHERE id=$id";
+      $successMessage = "Vehículo actualizado con éxito!";
+   }
 
    if ($db->query($sql) === TRUE) {
       echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
-            Vehículo agregado con éxito!
-            <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
-            </div>";
+               $successMessage
+               <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+             </div>";
       echo "<script>document.getElementById('addForm').classList.add('d-none');
-                  document.getElementById('toggleButton').textContent = 'Añadir vehículo';</script>";
+                     document.getElementById('toggleButton').textContent = 'Añadir vehículo';</script>";
    } else {
       echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
-            Error: " . $db->error . "
-            <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
-            </div>";
+               Error: " . $db->error . "
+               <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+             </div>";
    }
 }
 
@@ -155,8 +169,8 @@ $result = $db->query($sql);
       </div>
    </nav>
    <div class="container mt-3">
-    <div id="alertContainer"></div>
-</div>
+      <div id="alertContainer"></div>
+   </div>
    <div class="container table-container">
       <h1 class="text-center mb-4">Inventario</h1>
 
@@ -168,7 +182,8 @@ $result = $db->query($sql);
       <!-- Formulario para agregar registro -->
       <div class="form-container d-none" id="addForm">
          <form method="POST" action="inventario.php">
-            <input type="hidden" name="add" value="1">
+            <input type="hidden" name="action" value="add" id="formAction">
+            <input type="hidden" name="vehicleId" id="vehicleId">
             <div class="row mb-3">
                <div class="col-md-4">
                   <label for="marca" class="form-label">Marca</label>
@@ -205,7 +220,9 @@ $result = $db->query($sql);
                </div>
             </div>
 
-            <button type="submit" class="btn btn-gold w-auto px-4 mb-4 mx-auto d-block">Añadir vehículo</button>
+            <button type="submit" class="btn btn-gold px-4 mb-4 mx-auto d-block" id="submitButton">
+               Añadir vehículo
+            </button>
          </form>
       </div>
 
@@ -236,9 +253,20 @@ $result = $db->query($sql);
                   echo "<td>" . ucfirst(htmlspecialchars($row['estado'])) . "</td>";
                   echo "<td>" . ucfirst(htmlspecialchars($row['disponibilidad'])) . "</td>";
                   echo "<td>
-                               <button class='btn btn-gold btn-sm'>Editar</button>
-                               <button class='btn btn-danger btn-sm'>Eliminar</button>
-                             </td>";
+                          <button class='btn btn-gold btn-sm' onclick='editVehicle(this)' 
+                              data-id='" . $row['id'] . "'
+                              data-marca='" . htmlspecialchars($row['marca']) . "'
+                              data-modelo='" . htmlspecialchars($row['modelo']) . "'
+                              data-año='" . htmlspecialchars($row['año']) . "'
+                              data-precio='" . htmlspecialchars($row['precio']) . "'
+                              data-estado='" . htmlspecialchars($row['estado']) . "'
+                              data-disponibilidad='" . htmlspecialchars($row['disponibilidad']) . "'>
+                              Editar
+                          </button>
+                          <button class='btn btn-danger btn-sm' onclick='deleteVehicle(" . $row['id'] . ", \"" . htmlspecialchars($row['marca']) . " " . htmlspecialchars($row['modelo']) . "\")'>
+                                 Eliminar
+                           </button>
+                        </td>";
                   echo "</tr>";
                }
             } else {
@@ -255,34 +283,99 @@ $result = $db->query($sql);
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
    <script>
       // Auto-hide alerts after 5 seconds
-document.addEventListener('DOMContentLoaded', function() {
-    // Get all alerts
-    const alerts = document.querySelectorAll('.alert');
-    
-    alerts.forEach(function(alert) {
-        // Add fade out after 5 seconds
-        setTimeout(function() {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        }, 5000);
-    });
-});
+      document.addEventListener('DOMContentLoaded', function() {
+         // Get all alerts
+         const alerts = document.querySelectorAll('.alert');
 
-// Update the toggleForm function to reset the form when hiding
-function toggleForm() {
-    const formContainer = document.getElementById("addForm");
-    const toggleButton = document.getElementById("toggleButton");
-    
-    if (formContainer.classList.contains("d-none")) {
-        formContainer.classList.remove("d-none");
-        toggleButton.textContent = "Cancelar";
-    } else {
-        formContainer.classList.add("d-none");
-        toggleButton.textContent = "Añadir vehículo";
-        // Reset the form
-        formContainer.querySelector('form').reset();
-    }
-}
+         alerts.forEach(function(alert) {
+            // Add fade out after 5 seconds
+            setTimeout(function() {
+               const bsAlert = new bootstrap.Alert(alert);
+               bsAlert.close();
+            }, 5000);
+         });
+      });
+
+      function editVehicle(button) {
+         // Get form elements
+         const form = document.getElementById('vehicleForm');
+         const formAction = document.getElementById('formAction');
+         const vehicleId = document.getElementById('vehicleId');
+         const submitButton = document.getElementById('submitButton');
+         const toggleButton = document.getElementById('toggleButton');
+
+         // Set form to edit mode
+         formAction.value = 'edit';
+         vehicleId.value = button.dataset.id;
+
+         // Fill form fields with vehicle data
+         document.getElementById('marca').value = button.dataset.marca;
+         document.getElementById('modelo').value = button.dataset.modelo;
+         document.getElementById('año').value = button.dataset.año;
+         document.getElementById('precio').value = button.dataset.precio;
+         document.getElementById('estado').value = button.dataset.estado;
+         document.getElementById('disponibilidad').value = button.dataset.disponibilidad;
+
+         // Change button text
+         submitButton.textContent = 'Actualizar Registro';
+         toggleButton.textContent = 'Cancelar';
+
+         // Show form if hidden
+         const formContainer = document.getElementById('addForm');
+         formContainer.classList.remove('d-none');
+
+         // Scroll to form
+         formContainer.scrollIntoView({
+            behavior: 'smooth'
+         });
+      }
+
+      // Update the toggleForm function to handle reset properly
+      function toggleForm() {
+         const formContainer = document.getElementById('addForm');
+         const toggleButton = document.getElementById('toggleButton');
+         const submitButton = document.getElementById('submitButton');
+         const formAction = document.getElementById('formAction');
+         const vehicleId = document.getElementById('vehicleId');
+
+         if (formContainer.classList.contains('d-none')) {
+            formContainer.classList.remove('d-none');
+            toggleButton.textContent = 'Cancelar';
+         } else {
+            formContainer.classList.add('d-none');
+            toggleButton.textContent = 'Añadir vehículo';
+            // Reset the form
+            document.getElementById('vehicleForm').reset();
+            // Reset to add mode
+            formAction.value = 'add';
+            vehicleId.value = '';
+            submitButton.textContent = 'Agregar Registro';
+         }
+      }
+
+      function deleteVehicle(id, vehicleInfo) {
+         if (confirm(`¿Está seguro que desea eliminar el vehículo ${vehicleInfo}?`)) {
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'inventario.php';
+
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'delete';
+
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'vehicleId';
+            idInput.value = id;
+
+            form.appendChild(actionInput);
+            form.appendChild(idInput);
+            document.body.appendChild(form);
+            form.submit();
+         }
+      }
    </script>
 </body>
 
