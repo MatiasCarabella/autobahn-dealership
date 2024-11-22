@@ -6,8 +6,8 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Almacena el nombre en la sesión
     $_SESSION['nombre'] = $_POST['nombre'];
-    // Redirige a registro_2.php
-    header('Location: registro_2.php');
+    // Redirige a register_2.php
+    header('Location: register_2.php');
     exit();
 }
 ?>

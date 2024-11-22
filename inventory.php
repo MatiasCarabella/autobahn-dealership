@@ -162,13 +162,13 @@ $result = $db->query($sql);
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="catalogo.html">Catálogo</a>
+                        <a class="nav-link" aria-current="page" href="catalog.html">Catálogo</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="inventario.php">Inventario</a>
+                        <a class="nav-link active" href="inventory.php">Inventario</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="testdrive.html">Test Drive</a>
+                        <a class="nav-link" href="test_drive.html">Test Drive</a>
                     </li>
                 </ul>
             </div>
@@ -185,7 +185,7 @@ $result = $db->query($sql);
 
         <!-- Formulario para agregar/editar vehículos -->
         <div class="form-container d-none" id="addForm">
-            <form method="POST" action="inventario.php">
+            <form method="POST" action="inventory.php">
                 <input type="hidden" name="action" value="add" id="formAction">
                 <input type="hidden" name="vehicleId" id="vehicleId">
                 <!-- Campos del formulario -->
