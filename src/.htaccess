@@ -1,0 +1,20 @@
+RewriteEngine On
+
+# Redirect to public directory for assets
+RewriteCond %{REQUEST_URI} ^/(css|js|images)/
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Remove .php extension
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Prevent directory listing
+Options -Indexes
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
