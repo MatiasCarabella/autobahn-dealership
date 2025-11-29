@@ -198,38 +198,6 @@ include 'includes/navbar.php';
     </div>
 </div>
 
-<style>
-    /* Override Bootstrap table colors */
-    #inventoryTable thead {
-        background-color: var(--bg-darkest) !important;
-    }
-    
-    #inventoryTable thead th {
-        background-color: transparent !important;
-        border-bottom: none !important;
-    }
-    
-    #inventoryTable tbody tr {
-        background-color: rgba(10, 10, 10, 0.6) !important;
-    }
-    
-    #inventoryTable tbody tr:nth-of-type(odd) {
-        background-color: rgba(15, 15, 15, 0.9) !important;
-    }
-    
-    #inventoryTable tbody tr:nth-of-type(even) {
-        background-color: rgba(8, 8, 8, 0.8) !important;
-    }
-    
-    #inventoryTable tbody tr:hover {
-        background-color: rgba(212, 175, 55, 0.08) !important;
-    }
-    
-    #inventoryTable tbody td {
-        background-color: transparent !important;
-        border-bottom: none !important;
-    }
-</style>
 
 <?php if (isset($alertMessage) && isset($alertType)): ?>
 <script>

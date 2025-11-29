@@ -1,29 +1,54 @@
 # Autobahn - Luxury Car Dealership Platform
 
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Docker](https://img.shields.io/badge/Docker-27.4-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white)](https://www.php.net/)
-[![MySQL](https://img.shields.io/badge/MySQL-9.0-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-9.1-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.3-7952B3?logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![Apache](https://img.shields.io/badge/Apache-2.4-D22128?logo=apache&logoColor=white)](https://httpd.apache.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A premium, fully Dockerized web application for managing and showcasing luxury and exotic vehicles. Built with PHP 8.3, MySQL 9.0, and Bootstrap 5.3, Autobahn provides a complete solution for high-end automotive dealerships with one-command deployment.
+A premium, fully Dockerized web application for managing and showcasing luxury and exotic vehicles. Built with PHP 8.3, MySQL 9.1, Apache 2.4, and Bootstrap 5.3.3, Autobahn provides a complete solution for high-end automotive dealerships with one-command deployment.
 
-## Features
+## ✨ Features
 
-- **Vehicle Catalog** - Browse a curated collection of luxury vehicles including Ferrari, Lamborghini, Porsche, McLaren, Bugatti, and more
-- **Inventory Management** - Full CRUD operations for managing vehicle inventory with real-time updates
-- **Test Drive Scheduling** - Easy-to-use interface for customers to schedule test drives
-- **Vehicle Search** - AJAX-powered search functionality to query vehicles by ID
-- **User Authentication** - Multi-step registration process and secure login system
-- **Responsive Design** - Mobile-friendly interface with elegant dark theme and gold accents
+### 🏎️ Vehicle Catalog
+- Browse 9 curated luxury vehicles (Ferrari, Lamborghini, Porsche, McLaren, Bugatti, Rolls-Royce, Aston Martin, BMW, Mercedes-Benz)
+- Detailed vehicle specifications modal with engine, performance, and pricing details
+- Exclusive purchase benefits for each vehicle
+- Direct test drive scheduling from catalog
 
-## Tech Stack
+### 📊 Inventory Management
+- Full CRUD operations with prepared statements (SQL injection protected)
+- Real-time search and filter by brand, model, or year
+- Sortable table columns (brand, model, year, price, condition, availability)
+- Modal-based add/edit forms with client and server-side validation
+- Inline delete with confirmation
+- Toast notifications for all operations
 
-- **Frontend**: HTML5, CSS3, Bootstrap 5.3.3, jQuery 3.7.1
-- **Backend**: PHP 8.3
-- **Database**: MySQL 9.0
-- **Containerization**: Docker & Docker Compose
-- **Design**: Custom dark theme with gold accent colors
+### 🚗 Test Drive Scheduling
+- Interactive form with vehicle pre-selection from catalog
+- Date picker with instant calendar popup
+- Success confirmation with formatted date display
+- Demo mode with snackbar notifications
+
+### 🎨 Premium UI/UX
+- Dark theme with gold accents (#D4AF37)
+- Smooth animations and transitions
+- Responsive design (mobile, tablet, desktop)
+- Hover effects and micro-interactions
+- Premium table styling with gradient headers
+- Snackbar notifications (auto-dismiss)
+
+## 🛠️ Tech Stack
+
+- **Frontend**: HTML5, CSS3 (Custom Variables), Vanilla JavaScript
+- **Framework**: Bootstrap 5.3.3 (Grid, Components, Utilities)
+- **Backend**: PHP 8.3 (Prepared Statements, PDO/MySQLi)
+- **Web Server**: Apache 2.4 with mod_rewrite
+- **Database**: MySQL 9.1
+- **Containerization**: Docker 27.4 & Docker Compose 2.30
+- **Design**: Custom dark theme with gold accents
+- **Architecture**: MVC-inspired with separation of concerns
 
 ## Installation
 
@@ -54,7 +79,7 @@ The database will be automatically initialized with sample data on first run.
 ### Manual Setup (Without Docker)
 
 1. Clone the repository
-2. Set up a PHP 8.2+ environment with MySQL 8.0+
+2. Set up a PHP 8.3+ environment with MySQL 9.0+
 3. Import `database/init.sql` into your MySQL database
 4. Configure database credentials in `src/config/database.php`
 5. Point your web server to the `src/` directory
@@ -63,8 +88,8 @@ The database will be automatically initialized with sample data on first run.
 
 The application includes three Docker services:
 
-- **web**: PHP 8.2 with Apache (port 8080)
-- **db**: MySQL 8.0 (port 3306)
+- **web**: PHP 8.3 with Apache 2.4 (port 8080)
+- **db**: MySQL 9.1 (port 3306)
 - **phpmyadmin**: Database management interface (port 8081)
 
 ### Docker Commands
@@ -100,30 +125,33 @@ docker exec -i autobahn_db mysql -u autobahn_user -pautobahn_pass autobahn < bac
 ```
 autobahn/
 ├── database/
-│   └── init.sql                 # Database initialization script
+│   └── init.sql                 # Database schema & sample data
 ├── src/
 │   ├── api/
 │   │   └── get-vehicle.php      # Vehicle search API endpoint
 │   ├── config/
-│   │   └── database.php         # Database configuration class
+│   │   └── database.php         # Database connection class (PDO/MySQLi)
 │   ├── includes/
-│   │   ├── header.php           # Common header template
-│   │   ├── navbar.php           # Navigation bar component
-│   │   └── footer.php           # Common footer template
+│   │   ├── header.php           # HTML head & CSS includes
+│   │   ├── navbar.php           # Navigation component
+│   │   └── footer.php           # Footer & JS includes
 │   ├── public/
 │   │   ├── css/
-│   │   │   └── style.css        # Global styles
-│   │   ├── js/                  # JavaScript files
-│   │   └── images/              # Vehicle images
-│   ├── catalog.php              # Vehicle catalog page
-│   ├── inventory.php            # Inventory management (CRUD)
-│   ├── search.php               # Vehicle search interface
-│   ├── test-drive.php           # Test drive scheduling
-│   ├── index.php                # Entry point (redirects to catalog)
-│   └── .htaccess                # Apache configuration
-├── docker-compose.yml           # Docker services configuration
-├── Dockerfile                   # Web container definition
-└── README.md                    # This file
+│   │   │   └── style.css        # Global styles (CSS variables, dark theme)
+│   │   ├── js/
+│   │   │   ├── inventory.js     # Inventory management logic
+│   │   │   ├── catalog.js       # Catalog modal & interactions
+│   │   │   └── test-drive.js    # Test drive form handling
+│   │   └── images/              # Vehicle images (9 luxury cars)
+│   ├── catalog.php              # Vehicle showcase with specs
+│   ├── inventory.php            # CRUD operations (admin)
+│   ├── test-drive.php           # Test drive scheduling form
+│   ├── index.php                # Homepage with hero section
+│   └── .htaccess                # Apache URL rewriting
+├── docker-compose.yml           # Multi-container orchestration
+├── Dockerfile                   # PHP 8.3 + Apache container
+├── .dockerignore                # Docker build exclusions
+└── README.md                    # Documentation
 ```
 
 ## Usage
@@ -156,11 +184,11 @@ Access phpMyAdmin at http://localhost:8081 to manage the database directly:
 │                         Docker Host                          │
 │                                                              │
 │  ┌────────────────┐  ┌────────────────┐  ┌──────────────┐  │
-│  │   Web (PHP)    │  │  MySQL 8.0     │  │ phpMyAdmin   │  │
+│  │   Web (PHP)    │  │  MySQL 9.1     │  │ phpMyAdmin   │  │
 │  │   Port: 8080   │  │  Port: 3306    │  │ Port: 8081   │  │
 │  │                │  │                │  │              │  │
 │  │  Apache 2.4    │──│  Database:     │──│  DB Manager  │  │
-│  │  PHP 8.2       │  │  autobahn      │  │              │  │
+│  │  PHP 8.3       │  │  autobahn      │  │              │  │
 │  │  mod_rewrite   │  │                │  │              │  │
 │  └────────────────┘  └────────────────┘  └──────────────┘  │
 │         │                     │                             │
@@ -221,13 +249,7 @@ src/
 - UTF-8 support for international characters
 - Timestamps for audit trails
 
-## Color Scheme
 
-- Background: `#2C2C2C` (Dark Gray)
-- Cards: `#1F1F1F` (Darker Gray)
-- Primary Accent: `#CBA135` (Gold)
-- Hover Accent: `#FFD700` (Bright Gold)
-- Text: `#F5F5F5` (Off-White)
 
 ## Configuration
 
@@ -242,18 +264,7 @@ environment:
   - DB_PASSWORD=autobahn_pass
 ```
 
-## Security Notes
 
-⚠️ **Important**: This is a demonstration project. For production use:
-- ✅ Prepared statements implemented for API endpoints
-- ✅ Environment variables for database credentials
-- ✅ Input validation and sanitization
-- ⚠️ Add password hashing for user authentication
-- ⚠️ Implement CSRF protection
-- ⚠️ Implement proper session management
-- ⚠️ Add SSL/TLS encryption
-- ⚠️ Use stronger database passwords
-- ⚠️ Implement rate limiting for API endpoints
 
 ## License
 
@@ -278,13 +289,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 For issues or questions, please open an issue in the repository.
 
-## Roadmap
 
-- [ ] User authentication system
-- [ ] Shopping cart functionality
-- [ ] Payment gateway integration
-- [ ] Email notifications for test drives
-- [ ] Advanced search filters
-- [ ] Vehicle comparison feature
-- [ ] Admin dashboard
-- [ ] Multi-language support
