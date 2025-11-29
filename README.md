@@ -30,7 +30,7 @@ A fully Dockerized web application for managing and showcasing luxury and exotic
 ### 🚗 Test Drive Scheduling
 
 <div align="center">
-<img width="925" alt="Test Drive Scheduling" src="https://github.com/user-attachments/assets/5dda7545-a66c-450a-b33e-2d2a0db2fe2b" />
+<img width="625" alt="Test Drive Scheduling" src="https://github.com/user-attachments/assets/5dda7545-a66c-450a-b33e-2d2a0db2fe2b" />
 </div>
 
 - Interactive form with vehicle pre-selection from catalog
