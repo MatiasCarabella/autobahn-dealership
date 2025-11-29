@@ -1,4 +1,7 @@
+<div align="center">
+
 # Autobahn - Luxury Car Dealership Platform
+
 [![Docker](https://img.shields.io/badge/Docker-27.4-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white)](https://www.php.net/)
 [![MySQL](https://img.shields.io/badge/MySQL-9.1-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
@@ -6,21 +9,29 @@
 [![Apache](https://img.shields.io/badge/Apache-2.4-D22128?logo=apache&logoColor=white)](https://httpd.apache.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-<img width="1877" height="870" alt="image" src="https://github.com/user-attachments/assets/8cc225a6-5dbc-46e0-a122-3256d3f1a254" />
+<img width="1877" alt="Autobahn Homepage" src="https://github.com/user-attachments/assets/8cc225a6-5dbc-46e0-a122-3256d3f1a254" />
+
+</div>
 
 A fully Dockerized web application for managing and showcasing luxury and exotic vehicles. Built with PHP 8.3, MySQL 9.1, Apache 2.4, and Bootstrap 5.3.3, Autobahn provides a complete solution for high-end automotive dealerships with one-command deployment.
 
 ## ✨ Features
 
 ### 🏎️ Vehicle Catalog
-<img width="1790" height="779" alt="image" src="https://github.com/user-attachments/assets/ea556fab-aa53-4132-9618-1f174aa0b598" />
+
+<div align="center">
+<img width="1790" alt="Vehicle Catalog" src="https://github.com/user-attachments/assets/ea556fab-aa53-4132-9618-1f174aa0b598" />
+</div>
 
 - Browse luxury vehicles (Ferrari, Lamborghini, Porsche, McLaren, Bugatti, Rolls-Royce, Aston Martin, BMW, Mercedes-Benz)
 - Detailed vehicle specifications modal with engine, performance, and pricing details
 - Direct test drive scheduling from catalog
 
 ### 🚗 Test Drive Scheduling
-<img width="925" height="620" alt="image" src="https://github.com/user-attachments/assets/5dda7545-a66c-450a-b33e-2d2a0db2fe2b" />
+
+<div align="center">
+<img width="925" alt="Test Drive Scheduling" src="https://github.com/user-attachments/assets/5dda7545-a66c-450a-b33e-2d2a0db2fe2b" />
+</div>
 
 - Interactive form with vehicle pre-selection from catalog
 - Date picker with instant calendar popup
@@ -28,7 +39,10 @@ A fully Dockerized web application for managing and showcasing luxury and exotic
 - Demo mode with snackbar notifications
 
 ### 📊 Inventory Management
-<img width="1778" height="776" alt="image" src="https://github.com/user-attachments/assets/6ac9507f-bf48-47c2-b09a-431813ba3f4e" />
+
+<div align="center">
+<img width="1778" alt="Inventory Management" src="https://github.com/user-attachments/assets/6ac9507f-bf48-47c2-b09a-431813ba3f4e" />
+</div>
 
 - Real-time search and filter by brand, model, or year
 - Sortable table columns (brand, model, year, price, condition, availability)
