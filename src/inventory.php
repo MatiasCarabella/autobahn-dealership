@@ -3,48 +3,70 @@ require_once 'config/database.php';
 
 $pageTitle = 'Inventory - Autobahn';
 $currentPage = 'inventory';
-$additionalJS = ['https://code.jquery.com/jquery-3.7.1.min.js'];
+$additionalJS = ['/js/inventory.js'];
 
 // Create database connection
 $database = new Database();
 $db = $database->getMysqliConnection();
 
 // Handle form submission (create, update or delete records)
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Determine the action requested by the user
-    if ($_POST['action'] == 'delete') {
-        $id = (int)$_POST['vehicleId'];
-        $sql = "DELETE FROM inventory WHERE id = $id";
-        $successMessage = "Vehicle deleted successfully!";
-    } else {
-        // Only process form fields for add/update actions
-        $brand = $db->real_escape_string($_POST['brand'] ?? '');
-        $model = $db->real_escape_string($_POST['model'] ?? '');
-        $year = $db->real_escape_string($_POST['year'] ?? '');
-        $price = $db->real_escape_string($_POST['price'] ?? '');
-        $condition = $db->real_escape_string($_POST['condition'] ?? '');
-        $availability = $db->real_escape_string($_POST['availability'] ?? '');
-
-        if ($_POST['action'] == 'add') {
-            $sql = "INSERT INTO inventory (brand, model, year, price, `condition`, availability)
-                    VALUES ('$brand', '$model', '$year', '$price', '$condition', '$availability')";
-            $successMessage = "Vehicle added successfully!";
-        } else {
-            $id = (int)$_POST['vehicleId'];
-            $sql = "UPDATE inventory 
-                    SET brand='$brand', model='$model', year='$year', 
-                        price='$price', `condition`='$condition', availability='$availability'
-                    WHERE id=$id";
-            $successMessage = "Vehicle updated successfully!";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    
+    try {
+        if ($action === 'delete') {
+            // Use prepared statement for DELETE
+            $stmt = $db->prepare("DELETE FROM inventory WHERE id = ?");
+            $vehicleId = (int)$_POST['vehicleId'];
+            $stmt->bind_param("i", $vehicleId);
+            $stmt->execute();
+            $stmt->close();
+            
+            $alertMessage = "Vehicle deleted successfully!";
+            $alertType = 'success';
+            
+        } elseif ($action === 'add' || $action === 'update') {
+            // Validate inputs
+            $brand = trim($_POST['brand'] ?? '');
+            $model = trim($_POST['model'] ?? '');
+            $year = (int)($_POST['year'] ?? 0);
+            $price = filter_var($_POST['price'] ?? 0, FILTER_VALIDATE_FLOAT);
+            $condition = $_POST['condition'] ?? '';
+            $availability = $_POST['availability'] ?? '';
+            
+            // Validation
+            if (empty($brand) || empty($model) || $year < 1900 || $year > 2100 || $price === false || $price < 0) {
+                throw new Exception("Invalid input data");
+            }
+            
+            if (!in_array($condition, ['new', 'used'])) {
+                throw new Exception("Invalid condition value");
+            }
+            
+            if (!in_array($availability, ['available', 'unavailable'])) {
+                throw new Exception("Invalid availability value");
+            }
+            
+            if ($action === 'add') {
+                $stmt = $db->prepare("INSERT INTO inventory (brand, model, year, price, `condition`, availability) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("ssidss", $brand, $model, $year, $price, $condition, $availability);
+                $successMessage = "Vehicle added successfully!";
+            } else {
+                $vehicleId = (int)$_POST['vehicleId'];
+                $stmt = $db->prepare("UPDATE inventory SET brand=?, model=?, year=?, price=?, `condition`=?, availability=? WHERE id=?");
+                $stmt->bind_param("ssidssi", $brand, $model, $year, $price, $condition, $availability, $vehicleId);
+                $successMessage = "Vehicle updated successfully!";
+            }
+            
+            $stmt->execute();
+            $stmt->close();
+            
+            $alertMessage = $successMessage;
+            $alertType = 'success';
         }
-    }
-
-    // Execute query and handle result
-    if ($db->query($sql) === TRUE) {
-        $alertMessage = $successMessage;
-        $alertType = 'success';
-    } else {
-        $alertMessage = "Error: " . $db->error;
+    } catch (Exception $e) {
+        error_log("Inventory error: " . $e->getMessage());
+        $alertMessage = "An error occurred. Please try again.";
         $alertType = 'error';
     }
 }
@@ -96,14 +118,14 @@ include 'includes/navbar.php';
                             </div>
                             <div class="col-md-4">
                                 <label for="year" class="form-label">Year</label>
-                                <input type="number" class="form-control" id="year" name="year" required>
+                                <input type="number" class="form-control" id="year" name="year" min="1900" max="2100" required>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label for="price" class="form-label">Price (USD)</label>
-                                <input type="text" class="form-control" id="price" name="price" required>
+                                <input type="number" class="form-control" id="price" name="price" min="0" step="0.01" required>
                             </div>
                             <div class="col-md-4">
                                 <label for="condition" class="form-label">Condition</label>
@@ -134,7 +156,7 @@ include 'includes/navbar.php';
 
     <!-- Table to display existing vehicles -->
     <div class="table-container">
-        <table class="table table-dark table-striped" id="inventoryTable">
+        <table class="table table-dark table-striped" id="inventoryTable" style="--bs-table-bg: transparent; --bs-table-striped-bg: transparent;">
         <thead>
             <tr>
                 <th class="sortable" onclick="sortTable(0)">Brand <span class="sort-icon">⇅</span></th>
@@ -176,148 +198,47 @@ include 'includes/navbar.php';
     </div>
 </div>
 
+<style>
+    /* Override Bootstrap table colors */
+    #inventoryTable thead {
+        background-color: var(--bg-darkest) !important;
+    }
+    
+    #inventoryTable thead th {
+        background-color: transparent !important;
+        border-bottom: none !important;
+    }
+    
+    #inventoryTable tbody tr {
+        background-color: rgba(10, 10, 10, 0.6) !important;
+    }
+    
+    #inventoryTable tbody tr:nth-of-type(odd) {
+        background-color: rgba(15, 15, 15, 0.9) !important;
+    }
+    
+    #inventoryTable tbody tr:nth-of-type(even) {
+        background-color: rgba(8, 8, 8, 0.8) !important;
+    }
+    
+    #inventoryTable tbody tr:hover {
+        background-color: rgba(212, 175, 55, 0.08) !important;
+    }
+    
+    #inventoryTable tbody td {
+        background-color: transparent !important;
+        border-bottom: none !important;
+    }
+</style>
+
+<?php if (isset($alertMessage) && isset($alertType)): ?>
 <script>
-    // Bootstrap modal instance
-    let vehicleModal;
-    
+    // Show snackbar on page load if there's a message
     document.addEventListener('DOMContentLoaded', function() {
-        vehicleModal = new bootstrap.Modal(document.getElementById('vehicleModal'));
-        
-        // Show snackbar if there's a message from PHP
-        <?php if (isset($alertMessage) && isset($alertType)): ?>
-            showSnackbar('<?= addslashes($alertMessage) ?>', '<?= $alertType ?>');
-        <?php endif; ?>
+        showSnackbar('<?= addslashes($alertMessage) ?>', '<?= $alertType ?>');
     });
-
-    function showSnackbar(message, type = 'success') {
-        const snackbar = document.getElementById('snackbar');
-        snackbar.textContent = message;
-        snackbar.className = 'snackbar snackbar-' + type + ' show';
-        
-        // Auto-hide after 4 seconds
-        setTimeout(() => {
-            snackbar.className = snackbar.className.replace('show', '');
-        }, 4000);
-    }
-
-    function openModal() {
-        // Reset form for adding new vehicle
-        document.getElementById('vehicleForm').reset();
-        document.getElementById('formAction').value = 'add';
-        document.getElementById('vehicleId').value = '';
-        document.getElementById('vehicleModalLabel').textContent = 'Add Vehicle';
-        vehicleModal.show();
-    }
-
-    function editVehicle(vehicle) {
-        // Populate form with vehicle data
-        document.getElementById('formAction').value = 'update';
-        document.getElementById('vehicleId').value = vehicle.id;
-        document.getElementById('brand').value = vehicle.brand;
-        document.getElementById('model').value = vehicle.model;
-        document.getElementById('year').value = vehicle.year;
-        document.getElementById('price').value = vehicle.price;
-        document.getElementById('condition').value = vehicle.condition;
-        document.getElementById('availability').value = vehicle.availability;
-        document.getElementById('vehicleModalLabel').textContent = 'Edit Vehicle';
-        vehicleModal.show();
-    }
-
-    function toggleSearch() {
-        const searchForm = document.getElementById('searchForm');
-        const searchButton = document.getElementById('searchButton');
-        const searchInput = document.getElementById('searchInput');
-        
-        if (searchForm.classList.contains('d-none')) {
-            searchForm.classList.remove('d-none');
-            searchButton.textContent = 'Cancel';
-            if (searchInput) {
-                searchInput.value = '';
-                setTimeout(() => searchInput.focus(), 100);
-            }
-            // Show all rows when opening search
-            const rows = document.querySelectorAll('#inventoryTable tbody tr');
-            rows.forEach(row => row.style.display = '');
-        } else {
-            searchForm.classList.add('d-none');
-            searchButton.textContent = 'Search';
-            if (searchInput) searchInput.value = '';
-            // Show all rows when closing search
-            const rows = document.querySelectorAll('#inventoryTable tbody tr');
-            rows.forEach(row => row.style.display = '');
-        }
-    }
-
-    // Search/Filter functionality - using vanilla JavaScript
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
-        
-        if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                const table = document.getElementById('inventoryTable');
-                const rows = table.querySelectorAll('tbody tr');
-                
-                rows.forEach(function(row) {
-                    const brand = row.cells[0].textContent.toLowerCase();
-                    const model = row.cells[1].textContent.toLowerCase();
-                    const year = row.cells[2].textContent.toLowerCase();
-                    
-                    if (brand.includes(searchTerm) || model.includes(searchTerm) || year.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-        }
-    });
-
-    // Table sorting functionality
-    let sortDirection = {};
-    
-    function sortTable(columnIndex) {
-        const table = document.getElementById('inventoryTable');
-        const tbody = table.querySelector('tbody');
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        
-        // Initialize sort direction for this column
-        if (!sortDirection[columnIndex]) {
-            sortDirection[columnIndex] = 'asc';
-        }
-        
-        // Toggle sort direction
-        const isAscending = sortDirection[columnIndex] === 'asc';
-        sortDirection[columnIndex] = isAscending ? 'desc' : 'asc';
-        
-        rows.sort((a, b) => {
-            let aValue = a.cells[columnIndex].textContent.trim();
-            let bValue = b.cells[columnIndex].textContent.trim();
-            
-            // Handle price column (remove $ and commas)
-            if (columnIndex === 3) {
-                aValue = parseFloat(aValue.replace(/[$,]/g, ''));
-                bValue = parseFloat(bValue.replace(/[$,]/g, ''));
-            }
-            // Handle year column
-            else if (columnIndex === 2) {
-                aValue = parseInt(aValue);
-                bValue = parseInt(bValue);
-            }
-            
-            if (typeof aValue === 'number' && typeof bValue === 'number') {
-                return isAscending ? aValue - bValue : bValue - aValue;
-            } else {
-                return isAscending 
-                    ? aValue.localeCompare(bValue)
-                    : bValue.localeCompare(aValue);
-            }
-        });
-        
-        // Re-append sorted rows
-        rows.forEach(row => tbody.appendChild(row));
-    }
 </script>
+<?php endif; ?>
 
 <?php 
 $db->close();

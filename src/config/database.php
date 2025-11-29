@@ -39,17 +39,24 @@ class Database {
 
     public function getMysqliConnection() {
         try {
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
             $conn = new mysqli($this->host, $this->username, $this->password, $this->db_name, $this->port);
-            
-            if ($conn->connect_error) {
-                throw new Exception("Connection failed: " . $conn->connect_error);
-            }
-            
             $conn->set_charset("utf8mb4");
             return $conn;
         } catch(Exception $e) {
             error_log("Connection error: " . $e->getMessage());
             throw new Exception("Database connection failed");
+        }
+    }
+    
+    /**
+     * Close database connection
+     */
+    public function closeConnection($conn) {
+        if ($conn instanceof mysqli) {
+            $conn->close();
+        } elseif ($conn instanceof PDO) {
+            $conn = null;
         }
     }
 }
