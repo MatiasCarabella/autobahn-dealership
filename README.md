@@ -7,7 +7,7 @@
 [![Apache](https://img.shields.io/badge/Apache-2.4-D22128?logo=apache&logoColor=white)](https://httpd.apache.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A premium, fully Dockerized web application for managing and showcasing luxury and exotic vehicles. Built with PHP 8.3, MySQL 9.1, Apache 2.4, and Bootstrap 5.3.3, Autobahn provides a complete solution for high-end automotive dealerships with one-command deployment.
+A fully Dockerized web application for managing and showcasing luxury and exotic vehicles. Built with PHP 8.3, MySQL 9.1, Apache 2.4, and Bootstrap 5.3.3, Autobahn provides a complete solution for high-end automotive dealerships with one-command deployment.
 
 ## ✨ Features
 
