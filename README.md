@@ -79,19 +79,31 @@ cd autobahn-dealership
 docker-compose up -d
 ```
 
-3. Access the application:
-   - **Main Application**: http://localhost:8080
-   - **phpMyAdmin**: http://localhost:8081
+3. Access the application at **http://localhost:8080**
 
 The database will be automatically initialized with sample data on first run.
 
-## Docker Services
 
-The application includes three Docker services:
 
-- **web**: PHP 8.3 with Apache 2.4 (port 8080)
-- **db**: MySQL 9.1 (port 3306)
-- **phpmyadmin**: Database management interface (port 8081)
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         Docker Host                          │
+│                                                              │
+│  ┌────────────────┐  ┌────────────────┐  ┌──────────────┐  │
+│  │   Web (PHP)    │  │  MySQL 9.1     │  │ phpMyAdmin   │  │
+│  │   Port: 8080   │  │  Port: 3306    │  │ Port: 8081   │  │
+│  │                │  │                │  │              │  │
+│  │  Apache 2.4    │──│  Database:     │──│  DB Manager  │  │
+│  │  PHP 8.3       │  │  autobahn      │  │              │  │
+│  │  mod_rewrite   │  │                │  │              │  │
+│  └────────────────┘  └────────────────┘  └──────────────┘  │
+│         │                     │                             │
+│         └─────────────────────┴─────────────────────────────┤
+│                    autobahn_network                         │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ## Project Structure
 
@@ -127,43 +139,7 @@ autobahn/
 └── README.md                    # Documentation
 ```
 
-### Database Management
-Access phpMyAdmin at http://localhost:8081 to manage the database directly:
-- Username: `autobahn_user`
-- Password: `autobahn_pass`
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         Docker Host                          │
-│                                                              │
-│  ┌────────────────┐  ┌────────────────┐  ┌──────────────┐  │
-│  │   Web (PHP)    │  │  MySQL 9.1     │  │ phpMyAdmin   │  │
-│  │   Port: 8080   │  │  Port: 3306    │  │ Port: 8081   │  │
-│  │                │  │                │  │              │  │
-│  │  Apache 2.4    │──│  Database:     │──│  DB Manager  │  │
-│  │  PHP 8.3       │  │  autobahn      │  │              │  │
-│  │  mod_rewrite   │  │                │  │              │  │
-│  └────────────────┘  └────────────────┘  └──────────────┘  │
-│         │                     │                             │
-│         └─────────────────────┴─────────────────────────────┤
-│                    autobahn_network                         │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Configuration
-
-All configuration is managed in `docker-compose.yml`. To change database credentials or other settings, edit the environment variables in that file:
-
-```yaml
-environment:
-  - DB_HOST=db
-  - DB_PORT=3306
-  - DB_NAME=autobahn
-  - DB_USER=autobahn_user
-  - DB_PASSWORD=autobahn_pass
-```
 
 ## License
 
